@@ -1,6 +1,7 @@
 from collections import UserDict
 from datetime import datetime
 import pickle
+import re
 
 
 class AddressBook(UserDict):
@@ -13,7 +14,7 @@ class AddressBook(UserDict):
                 self.data = pickle.load(file)
         except:
             self.data = {}
-    
+
     def add_record(self, record):
         self.data[record.name.value] = record
 
@@ -23,9 +24,11 @@ class AddressBook(UserDict):
         while len(self.data) >= AddressBook.current_index:
             for name in names[AddressBook.current_index: min(len(self.data), AddressBook.current_index + AddressBook.N)]:
                 if self.data[name].birthday != "":
-                    show_list.append("{:<10}{:^35}{:>10}".format((self.data[name].name.value).capitalize(), " ".join([phone.value for phone in self.data[name].phones]), self.data[name].birthday))
+                    show_list.append("{:<10}{:^35}{:>10}".format((self.data[name].name.value).capitalize(
+                    ), " ".join([phone.value for phone in self.data[name].phones]), self.data[name].birthday))
                 else:
-                    show_list.append("{:<10}{:^35}{:>10}".format((self.data[name].name.value).capitalize(), " ".join([phone.value for phone in self.data[name].phones]), "-"))
+                    show_list.append("{:<10}{:^35}{:>10}".format((self.data[name].name.value).capitalize(
+                    ), " ".join([phone.value for phone in self.data[name].phones]), "-"))
             yield show_list
             AddressBook.current_index += AddressBook.N
             show_list = []
@@ -33,12 +36,13 @@ class AddressBook(UserDict):
     def save_contacts(self):
         if self.data != {}:
             with open("save_file.txt", "wb") as file:
-               contacts = pickle.dump(self.data, file) 
+                contacts = pickle.dump(self.data, file)
 
 
 class Record:
-    def __init__(self, name, phone = None, birthday = None, note = None):
+    def __init__(self, name, phone=None, birthday=None, note=None, address=None, email=None):
         self.name = Name(name)
+        self.tag = {}
         if phone:
             self.phones = [Phone(phone)]
         else:
@@ -51,16 +55,38 @@ class Record:
             self.note = Note(note)
         else:
             self.note = ""
+        if email:
+            self.email = Email(email)
+        else:
+            self.email = ""
+        if address:
+            self.address = Address(address)
+        else:
+            self.address = ""
 
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday).value.strftime('%d.%m.%Y')
 
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
-    
+
     def add_note(self, note):
         self.note = Note(note).value
-        print(self.note, "ooooh")#delete
+
+    def add_tag(self, tag):
+        self.tag["tag"] = tag
+        self.tag["note"] = self.note
+
+    def add_address(self, address):
+        self.address = Address(address)
+
+    def add_email(self, email):
+        self.email = Email(email)
+
+    def update_dict(self, note):
+        for tag in self.tag.keys():
+            self.note = note
+            self.tag["note"] = note
 
     def delete_phone(self, phone_for_delete):
         for phone in self.phones:
@@ -74,23 +100,48 @@ class Record:
 
     def days_to_birthday(self):
         if self.birthday:
-            birthday = datetime.strptime(self.birthday,'%d.%m.%Y')
+            birthday = datetime.strptime(self.birthday, '%d.%m.%Y')
             if ((birthday).replace(year=(datetime.now()).year)) > datetime.now():
-                print (f"to birthday {(((birthday).replace(year=(datetime.now()).year)) - datetime.now()).days} days")
+                print(
+                    f"to birthday {(((birthday).replace(year=(datetime.now()).year)) - datetime.now()).days} days")
             else:
-                print (f"to birthday {(((birthday).replace(year=(datetime.now()).year + 1)) - datetime.now()).days} days")
+                print(
+                    f"to birthday {(((birthday).replace(year=(datetime.now()).year + 1)) - datetime.now()).days} days")
         else:
             print("Contact's birthday wasn't added")
+
+    def interval_birthday(self, interval):
+        if self.birthday != "":
+            birthday = datetime.strptime(self.birthday, '%d.%m.%Y')
+            if ((birthday).replace(year=(datetime.now()).year)) > datetime.now():
+                diference = (
+                    ((birthday).replace(year=(datetime.now()).year)) - datetime.now()).days
+            else:
+                diference = (
+                    ((birthday).replace(year=(datetime.now()).year + 1)) - datetime.now()).days
+            if diference < interval:
+                print(f"{(self.name.value).capitalize()}, birthday: {self.birthday}")
+        else:
+            print("No birthday in this interval")
 
 
 class Field:
     def __init__(self, value):
+        self.__value = None
         self.value = value
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        self.__value = value
 
 
 class Name(Field):
     pass
-    
+
 
 class Phone(Field):
     def __init__(self, value):
@@ -102,9 +153,10 @@ class Phone(Field):
         return self.__value
 
     @value.setter
-    def value(self, value:str):
+    def value(self, value: str):
         if not all((value.startswith('+380'), value[1:].isdigit(), len(value) == 13)):
-            raise ValueError(print("Your phone should be like this: +380888888888"))
+            raise ValueError(
+                print("Your phone should be like this: +380888888888"))
         self.__value = value
 
 
@@ -121,15 +173,16 @@ class Birthday(Field):
         return self.__value
 
     @value.setter
-    def value(self, value:str):
+    def value(self, value):
         try:
             birthday = datetime.strptime(value, '%d.%m.%Y')
             self.__value = birthday
         except:
-            raise ValueError(print("Your birthday should be like this: 20.12.2000"))
+            raise ValueError(
+                print("Your birthday should be like this: 20.12.2000"))
 
 
-class Note(Field):
+class Email(Field):
     def __init__(self, value):
         self.__value = None
         self.value = value
@@ -139,5 +192,20 @@ class Note(Field):
         return self.__value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: str):
+        if not re.search("[a-zA-Z][a-zA-Z0-9_.]+@\w+\.\w\w+", value):
+            raise ValueError(
+                print("Your email should be like this: example@gmail.com"))
         self.__value = value
+
+
+class Note(Field):
+    pass
+    # def __init__(self, value):
+    #     super().__init__()
+
+
+class Address(Field):
+    pass
+    # def __init__(self, value):
+    #     super().__init__()
