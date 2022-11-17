@@ -131,7 +131,6 @@ class Birthday(Field):
         return datetime.strftime(self._value, '%d.%m.%Y')
 
 
-
 class Email(Field):
     @Field.value.setter
     def value(self, value: str):
@@ -143,12 +142,7 @@ class Email(Field):
 
 class Note(Field):
     pass
-    # def __init__(self, value):
-    #     super().__init__()
 
 
 class Address(Field):
-    
     pass
-    # def __init__(self, value):
-    #     super().__init__()
