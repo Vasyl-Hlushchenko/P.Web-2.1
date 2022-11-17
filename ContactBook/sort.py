@@ -85,11 +85,15 @@ def path_handler(main_path):
     if not os.path.exists(archives_path):
         os.makedirs(archives_path)
 
-    return around_dir(main_path, video_path, audio_path, images_path, documents_path, archives_path)
+    other_path = os.path.join(main_path, "other")
+    if not os.path.exists(other_path):
+        os.makedirs(other_path)
+
+    return around_dir(main_path, video_path, audio_path, images_path, documents_path, archives_path, other_path)
 
 
 @chek_error
-def file_handler(file, file_path, main_path, video_path, audio_path, images_path, documents_path, archives_path):
+def file_handler(file, file_path, main_path, video_path, audio_path, images_path, documents_path, archives_path, other_path):
     file_name_divide = normalize(file).split(".")
     file_ending = ""
     if len(file_name_divide) > 1:
@@ -114,7 +118,8 @@ def file_handler(file, file_path, main_path, video_path, audio_path, images_path
             shutil.unpack_archive(shutil.move(file_path, new_path), os.path.join(archives_path, normalize(file).rstrip(file_ending)))
             os.rename(os.path.join(archives_path, file), os.path.join(archives_path, normalize(file)), )
         else:
-            os.replace(file_path, os.path.join(main_path, normalize(file)))
+            new_path = os.path.join(other_path, file)
+            os.replace(shutil.move(file_path, new_path), os.path.join(other_path, normalize(file)))
         
     return None
 
@@ -130,14 +135,14 @@ def del_empty_dirs(main_path):
     return None
 
 
-def around_dir(main_path, video_path, audio_path, images_path, documents_path, archives_path):
+def around_dir(main_path, video_path, audio_path, images_path, documents_path, archives_path, other_path):
     files = os.listdir(main_path)
     for file in files:
         file_path = os.path.join(main_path, file)
         if os.path.isfile(file_path):
-            file_handler(file, file_path, main_path, video_path, audio_path, images_path, documents_path, archives_path)
+            file_handler(file, file_path, main_path, video_path, audio_path, images_path, documents_path, archives_path, other_path)
         else:
-            around_dir(file_path, video_path, audio_path, images_path, documents_path, archives_path)
+            around_dir(file_path, video_path, audio_path, images_path, documents_path, archives_path, other_path)
 
     return del_empty_dirs(main_path)
     
