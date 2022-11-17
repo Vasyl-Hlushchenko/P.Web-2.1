@@ -10,5 +10,5 @@ setup(name='ContactBook',
       include_package_data=True,
       packages=find_namespace_packages(),
       entry_points={'console_scripts': [
-          'contact_book = ContactBook.main:main']},
+          'bot = ContactBook.main:main']},
       )

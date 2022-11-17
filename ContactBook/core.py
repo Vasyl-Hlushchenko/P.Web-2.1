@@ -41,6 +41,7 @@ class Record:
         self.note = Note(note).value
 
     def add_tag(self, tag):
+        self.tag["name"] = self.name.value
         self.tag["tag"] = tag
         self.tag["note"] = self.note
 
