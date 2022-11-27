@@ -96,7 +96,6 @@ class Record:
 
 
 class IField(ABC):
-    @property
     @abstractmethod
     def value(self, value):
         pass
