@@ -1,3 +1,4 @@
+from abc import abstractmethod, ABC
 from collections import UserDict
 from datetime import datetime
 import pickle
@@ -14,6 +15,9 @@ class AddressBook(UserDict):
 
     def add_record(self, record):
         self.data[record.name.value] = record
+
+    def del_record(self, record):
+        self.data.pop(record.name.value)
 
     def save_contacts(self):
         if self.data:
@@ -91,7 +95,14 @@ class Record:
                 print(f"{(self.name.value).capitalize()}, birthday: {self.birthday}")
 
 
-class Field:
+class IField(ABC):
+    @property
+    @abstractmethod
+    def value(self, value):
+        pass
+
+
+class Field(IField):
     def __init__(self, value):
         self._value = None
         self.value = value

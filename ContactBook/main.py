@@ -42,6 +42,14 @@ def add_contact_handler(var):
         CONTACTS.add_record(record)
 
 
+def del_contact_handler(var):
+    name = var.split()[0]
+    if name in CONTACTS:
+        record = Record(name)
+        CONTACTS.del_record(record)
+
+
+
 @input_error
 def find_contact_handler(var):
     for name, record in CONTACTS.items():
@@ -292,6 +300,7 @@ def show_email_handler():
 COMMANDS = {
     "hello": [hello_handler, 'show commands'],
     "add": [add_contact_handler, '[name] [phone]'],
+    "del": [del_contact_handler, '[name]'],
     "add birthday": [add_birthday_handler, '[name] [dd.mm.yyyy]'],
     "add address": [add_address_handler, '[name] [address]'],
     "add note": [add_note_handler, '[name] [note]'],
@@ -308,7 +317,7 @@ COMMANDS = {
     "all email": [show_email_handler, 'show all emails'],
     "all address": [find_address_handler, 'show all address'],
     "show all": [show_contacts_handler, 'show all contacts'],
-    "days before birthday": [days_to_birthday_handler, '[name]'],
+    "birthday": [days_to_birthday_handler, '[name]'],
     "to birthday": [show_list_birthday_handler, '[number of days]'],
     "sort": [clean_folder, 'to sort your folder'],
     "exit": [quit_handler, 'exit program']
