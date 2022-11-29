@@ -97,14 +97,9 @@ def days_to_birthday_handler(var):
         raise ValueError
 
 
+@input_error
 def show_contacts_handler():
-    for name, record in CONTACTS.items():
-        if record.birthday:
-            print("{:<10}{:^35}{:>10}".format(name.capitalize(), " ".join(
-                [phone.value for phone in record.phones]), record.birthday))
-        else:
-            print("{:<10}{:^35}{:>10}".format(name.capitalize(), " ".join(
-                [phone.value for phone in record.phones]), "-"))
+    Bot(CONTACTS).show_contacts()
 
 
 @input_error
@@ -155,16 +150,9 @@ def add_note_handler(var):
         raise ValueError
 
 
+@input_error
 def show_notes_handler():
-    show_list = []
-    for name, record in CONTACTS.items():
-        if record.note:
-            show_list.append(f"{name.capitalize()}: {record.note}")
-    if show_list:
-        for item in show_list:
-            print(item)
-    else:
-        raise TypeError  
+    Bot(CONTACTS).show_notes() 
 
 
 @input_error
@@ -182,16 +170,7 @@ def add_tag_handler(var):
 
 
 def show_tags_handler():
-    show_list = []
-    for name, record in CONTACTS.items():
-        if record.tag != {}:
-            show_list.append(record.tag)
-    if show_list:
-        show_list = sorted(show_list, key=lambda x: x['tag'])
-        for item in show_list:
-            print(item)
-    else:
-        raise TypeError
+    Bot(CONTACTS).show_tags()
 
 
 @input_error
@@ -251,17 +230,9 @@ def add_address_handler(var):
         raise ValueError
 
 
-def find_address_handler():
-    show_list = []
-    for name, record in CONTACTS.items():
-        if record.address:
-            show_list.append(
-                f"{name.capitalize()}'s address: {record.address.value}")
-    if show_list:
-        for item in show_list:
-            print(item)
-    else:
-        raise TypeError
+@input_error
+def show_address_handler():
+    Bot(CONTACTS).show_address()
 
 
 @input_error
@@ -283,18 +254,9 @@ def add_email_handler(var):
         raise ValueError
 
 
+@input_error
 def show_email_handler():
-    show_list = []
-    for name, record in CONTACTS.items():
-        if record.email:
-            show_list.append(f"{name.capitalize()}'s email: {record.email.value}")
-        else:
-            continue
-    if show_list:
-        for item in show_list:
-            print(item)
-    else:
-        raise TypeError
+    Bot(CONTACTS).show_emails()
 
 
 COMMANDS = {
@@ -314,8 +276,8 @@ COMMANDS = {
     "find tag": [find_tag_handler, '[tag_name]'],
     "all tags": [show_tags_handler, 'show all tags'],
     "all notes": [show_notes_handler, 'show all notes'],
-    "all email": [show_email_handler, 'show all emails'],
-    "all address": [find_address_handler, 'show all address'],
+    "all emails": [show_email_handler, 'show all emails'],
+    "all address": [show_address_handler, 'show all address'],
     "show all": [show_contacts_handler, 'show all contacts'],
     "birthday": [days_to_birthday_handler, '[name]'],
     "to birthday": [show_list_birthday_handler, '[number of days]'],
